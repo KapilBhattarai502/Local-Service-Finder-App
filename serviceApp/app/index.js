@@ -10,6 +10,9 @@ import {
 import { useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { addService, removeService } from "../redux/serviceSlice";
+import { db } from "../config/database.js";
+import { collection, getDocs } from "firebase/firestore";
+import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
@@ -17,6 +20,21 @@ export default function Home() {
   const selectedServices = useSelector(
     (state) => state.service.selectedServices
   );
+
+  useEffect(() => {
+    checkFirebaseConnection();
+  }, []);
+
+  const checkFirebaseConnection = async () => {
+    try {
+      await getDocs(collection(db, "test"));
+
+      console.log("✅ Firebase database connected successfully");
+    } catch (error) {
+      console.log("❌ Firebase connection failed");
+      console.log(error);
+    }
+  };
 
   const services = [
     {

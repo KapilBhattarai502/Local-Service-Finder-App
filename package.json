@@ -4,6 +4,7 @@
     "@react-navigation/native-stack": "^7.14.12",
     "@reduxjs/toolkit": "^2.11.2",
     "expo": "^55.0.18",
+    "firebase": "^12.13.0",
     "react-redux": "^9.2.0"
   }
 }
