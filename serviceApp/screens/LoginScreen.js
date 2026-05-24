@@ -17,7 +17,6 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
 
   const [password, setPassword] = useState("");
-
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Error", "Please fill all fields");
@@ -26,8 +25,6 @@ export default function LoginScreen({ navigation }) {
     }
 
     try {
-      console.log("checking login");
-
       // CHECK USERS COLLECTION
 
       const usersQuery = query(
