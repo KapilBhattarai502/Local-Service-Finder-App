@@ -9,21 +9,59 @@ import {
   Alert,
 } from "react-native";
 
+import { db } from "../config/database";
+
+import { collection, query, where, getDocs } from "firebase/firestore";
+
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
 
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
-      console.log("Error");
       Alert.alert("Error", "Please fill all fields");
 
       return;
     }
-    navigation.navigate("Home");
 
-    Alert.alert("Success", "Login Successful");
+    try {
+      console.log("checking login");
+
+      // CHECK USERS COLLECTION
+
+      const usersQuery = query(
+        collection(db, "users"),
+        where("email", "==", email),
+        where("password", "==", password)
+      );
+
+      const usersSnapshot = await getDocs(usersQuery);
+
+      // CHECK SERVICE PROVIDERS COLLECTION
+
+      const providersQuery = query(
+        collection(db, "serviceProviders"),
+        where("email", "==", email),
+        where("password", "==", password)
+      );
+
+      const providersSnapshot = await getDocs(providersQuery);
+
+      // LOGIN SUCCESS
+
+      if (!usersSnapshot.empty || !providersSnapshot.empty) {
+        Alert.alert("Success", "Login Successful");
+
+        navigation.navigate("Home");
+      } else {
+        Alert.alert("Error", "Invalid email or password");
+      }
+    } catch (error) {
+      console.log(error);
+
+      Alert.alert("Error", "Something went wrong");
+    }
   };
 
   return (
@@ -35,6 +73,7 @@ export default function LoginScreen({ navigation }) {
         style={styles.input}
         value={email}
         onChangeText={setEmail}
+        autoCapitalize="none"
       />
 
       <TextInput
@@ -61,6 +100,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
+    backgroundColor: "#fff",
   },
 
   title: {
