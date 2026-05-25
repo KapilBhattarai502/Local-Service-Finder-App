@@ -1,10 +1,10 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
 import LoginScreen from "../screens/LoginScreen";
-import HomeScreen from "../screens/HomeScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import BottomTabs from "./BottomTabs";
+import ServiceProvidersScreen from "../screens/ServiceProvidersScreen";
+import ProviderLocationScreen from "../screens/ProviderLocationScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -16,8 +16,15 @@ export default function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Home" component={BottomTabs} />
-
         <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen
+          name="ServiceProviders"
+          component={ServiceProvidersScreen}
+        />
+        <Stack.Screen
+          name="ProviderLocation"
+          component={ProviderLocationScreen}
+        />
 
         {/* {!isAuthenticated ? (
           <>

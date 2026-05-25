@@ -7,12 +7,12 @@ import {
   TextInput,
 } from "react-native";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Ionicons } from "@expo/vector-icons";
 import { services } from "../data/data";
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   return (
     <ScrollView style={styles.container}>
       {/* HEADER */}
@@ -41,6 +41,11 @@ export default function HomeScreen() {
           <TouchableOpacity
             key={index}
             style={[styles.card, { backgroundColor: service.color }]}
+            onPress={() =>
+              navigation.navigate("ServiceProviders", {
+                service: service.title,
+              })
+            }
           >
             {service.icon}
 

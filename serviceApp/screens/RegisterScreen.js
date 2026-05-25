@@ -11,6 +11,7 @@ import {
   ScrollView,
 } from "react-native";
 import { db } from "../config/database";
+import Geocoder from "../config/geocoding";
 
 export default function RegisterScreen({ navigation }) {
   const [userType, setUserType] = useState("Customer");
@@ -45,7 +46,6 @@ export default function RegisterScreen({ navigation }) {
   ];
 
   const handleRegister = async () => {
-    console.log("register");
     if (!name || !address || !contactNumber || !email || !password) {
       console.log("no name");
       Alert.alert("Error", "Please fill all common fields");
@@ -61,25 +61,51 @@ export default function RegisterScreen({ navigation }) {
     }
 
     try {
-      console.log("try");
-      console.log(userType);
       const collectionName =
         userType === "Service Provider" ? "serviceProviders" : "users";
       console.log(collectionName);
 
+      const geoResponse = await Geocoder.from(address);
+
+      if (geoResponse.results.length === 0) {
+        Alert.alert("Invalid Address", "Please enter a valid address");
+
+        return;
+      }
+
+      const location = geoResponse.results[0].geometry.location;
+
+      const latitude = location.lat;
+
+      const longitude = location.lng;
+
       await addDoc(collection(db, collectionName), {
         userType,
+
         name,
+
         address,
+
         contactNumber,
+
         email,
+
         password,
+
+        latitude,
+
+        longitude,
+
+        // SERVICE PROVIDER FIELDS
+
         abn: userType === "Service Provider" ? abn : "",
+
         hourlyPrice: userType === "Service Provider" ? hourlyPrice : "",
+
         service: userType === "Service Provider" ? service : "",
+
         createdAt: new Date(),
       });
-      console.log("here ");
 
       Alert.alert("Success", `${userType} Registration Successful`);
 
