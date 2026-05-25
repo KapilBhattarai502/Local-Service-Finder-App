@@ -21,7 +21,6 @@ export default function ServiceProvidersScreen({ route, navigation }) {
   const [providers, setProviders] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  console.log("providers", providers);
 
   useEffect(() => {
     fetchProviders();

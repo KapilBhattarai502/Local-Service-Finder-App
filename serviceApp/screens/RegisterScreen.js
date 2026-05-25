@@ -63,7 +63,6 @@ export default function RegisterScreen({ navigation }) {
     try {
       const collectionName =
         userType === "Service Provider" ? "serviceProviders" : "users";
-      console.log(collectionName);
 
       const geoResponse = await Geocoder.from(address);
 
