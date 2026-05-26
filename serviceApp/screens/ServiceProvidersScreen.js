@@ -7,13 +7,25 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  Alert,
 } from "react-native";
-
-import { collection, query, where, getDocs } from "firebase/firestore";
 
 import { db } from "../config/database";
 
 import { Ionicons } from "@expo/vector-icons";
+
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "../redux/userSlice";
+
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+  doc,
+  arrayUnion,
+} from "firebase/firestore";
 
 export default function ServiceProvidersScreen({ route, navigation }) {
   const { service } = route.params;
@@ -22,9 +34,87 @@ export default function ServiceProvidersScreen({ route, navigation }) {
 
   const [loading, setLoading] = useState(true);
 
+  const dispatch = useDispatch();
+
+  const currentUser = useSelector((state) => state.user.currentUser);
+
   useEffect(() => {
     fetchProviders();
   }, []);
+
+  const handleBooking = async (provider) => {
+    try {
+      // USER SIDE BOOKING DATA
+
+      const bookingData = {
+        service: provider.service,
+
+        providerName: provider.name,
+
+        providerId: provider.id,
+
+        providerAddress: provider.address,
+
+        providerContact: provider.contactNumber,
+
+        bookedAt: new Date().toISOString(),
+      };
+
+      // STORE BOOKING INSIDE USER DOCUMENT
+
+      await updateDoc(
+        doc(db, "users", currentUser.id),
+
+        {
+          bookings: arrayUnion(bookingData),
+        }
+      );
+
+      // SERVICE PROVIDER SIDE BOOKING DATA
+
+      const providerBookingData = {
+        userId: currentUser.id,
+
+        userName: currentUser.name,
+
+        address: currentUser.address,
+
+        contactNumber: currentUser.contactNumber,
+
+        service: provider.service,
+
+        bookedAt: new Date().toISOString(),
+      };
+
+      // STORE BOOKING INSIDE PROVIDER DOCUMENT
+
+      await updateDoc(
+        doc(db, "serviceProviders", provider.id),
+
+        {
+          bookings: arrayUnion(providerBookingData),
+        }
+      );
+
+      // UPDATE REDUX STATE
+
+      dispatch(
+        setUser({
+          ...currentUser,
+
+          bookings: [...(currentUser.bookings || []), bookingData],
+        })
+      );
+
+      Alert.alert("Success", "Booking Successful");
+
+      navigation.navigate("Home");
+    } catch (error) {
+      console.log(error);
+
+      Alert.alert("Error", "Booking failed");
+    }
+  };
 
   const fetchProviders = async () => {
     try {
@@ -137,20 +227,31 @@ export default function ServiceProvidersScreen({ route, navigation }) {
               <Text style={styles.available}>Available Now</Text>
             </View>
 
-            <TouchableOpacity
-              style={styles.locationButton}
-              onPress={() =>
-                navigation.navigate("ProviderLocation", {
-                  latitude: item.latitude,
-                  longitude: item.longitude,
-                  providerName: item.name,
-                })
-              }
-            >
-              <Ionicons name="location" size={18} color="#fff" />
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={styles.locationButton}
+                onPress={() =>
+                  navigation.navigate("ProviderLocation", {
+                    latitude: item.latitude,
+                    longitude: item.longitude,
+                    providerName: item.name,
+                  })
+                }
+              >
+                <Ionicons name="location" size={18} color="#fff" />
 
-              <Text style={styles.locationButtonText}>See Location</Text>
-            </TouchableOpacity>
+                <Text style={styles.locationButtonText}>See Location</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.bookButton}
+                onPress={() => handleBooking(item)}
+              >
+                <Ionicons name="calendar" size={18} color="#fff" />
+
+                <Text style={styles.bookButtonText}>Book Now</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       />
@@ -170,6 +271,11 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     marginBottom: 20,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
   },
 
   card: {
@@ -232,6 +338,28 @@ const styles = StyleSheet.create({
   service: {
     color: "#777",
     marginTop: 3,
+  },
+  bookButton: {
+    flexDirection: "row",
+    alignItems: "center",
+
+    backgroundColor: "#22C55E",
+
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+
+    borderRadius: 12,
+
+    marginTop: 12,
+
+    justifyContent: "center",
+  },
+
+  bookButtonText: {
+    color: "#fff",
+    marginLeft: 8,
+    fontWeight: "bold",
+    fontSize: 16,
   },
 
   infoRow: {

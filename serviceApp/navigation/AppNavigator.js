@@ -5,6 +5,7 @@ import RegisterScreen from "../screens/RegisterScreen";
 import BottomTabs from "./BottomTabs";
 import ServiceProvidersScreen from "../screens/ServiceProvidersScreen";
 import ProviderLocationScreen from "../screens/ProviderLocationScreen";
+import ProviderDashboardScreen from "../screens/ProviderDashboardScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +25,10 @@ export default function AppNavigator() {
         <Stack.Screen
           name="ProviderLocation"
           component={ProviderLocationScreen}
+        />
+        <Stack.Screen
+          name="ProviderDashboard"
+          component={ProviderDashboardScreen}
         />
 
         {/* {!isAuthenticated ? (

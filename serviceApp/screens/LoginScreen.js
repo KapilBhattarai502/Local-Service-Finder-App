@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+
+import { setUser } from "../redux/userSlice";
 
 import {
   View,
@@ -15,6 +18,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
+  const dispatch = useDispatch();
 
   const [password, setPassword] = useState("");
   const handleLogin = async () => {
@@ -50,7 +54,36 @@ export default function LoginScreen({ navigation }) {
       if (!usersSnapshot.empty || !providersSnapshot.empty) {
         Alert.alert("Success", "Login Successful");
 
-        navigation.navigate("Home");
+        const userDoc = !usersSnapshot.empty
+          ? usersSnapshot.docs[0]
+          : providersSnapshot.docs[0];
+
+        const userData = userDoc.data();
+
+        dispatch(
+          setUser({
+            id: userDoc.id,
+
+            ...userData,
+
+            createdAt: userData.createdAt
+              ? userData.createdAt.toDate().toISOString()
+              : null,
+
+            bookings: userData.bookings
+              ? userData.bookings.map((booking) => ({
+                  ...booking,
+
+                  bookedAt: booking.bookedAt || null,
+                }))
+              : [],
+          })
+        );
+        if (userDoc.data().userType === "Service Provider") {
+          navigation.replace("ProviderDashboard");
+        } else {
+          navigation.replace("Home");
+        }
       } else {
         Alert.alert("Error", "Invalid email or password");
       }
