@@ -8,10 +8,18 @@ import HomeScreen from "../screens/HomeScreen";
 import MapScreen from "../screens/MapScreen";
 import NotificationScreen from "../screens/NotificationScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import { useSelector } from "react-redux";
 
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabs() {
+  const notifications = useSelector(
+    (state) => state.notifications.notifications
+  );
+
+  const unreadCount = notifications.filter(
+    (notification) => !notification.isRead
+  ).length;
   return (
     <Tab.Navigator
       screenOptions={{
@@ -61,6 +69,8 @@ export default function BottomTabs() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="notifications" size={size} color={color} />
           ),
+
+          tabBarBadge: unreadCount > 0 ? unreadCount : null,
         }}
       />
 

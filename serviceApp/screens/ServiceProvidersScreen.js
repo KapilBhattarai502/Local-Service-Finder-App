@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "../redux/userSlice";
+import { addNotification } from "../redux/notificationSlice";
 
 import {
   collection,
@@ -103,6 +104,18 @@ export default function ServiceProvidersScreen({ route, navigation }) {
           ...currentUser,
 
           bookings: [...(currentUser.bookings || []), bookingData],
+        })
+      );
+
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+
+          title: "Booking Confirmed",
+
+          message: `Your booking with ${provider.name} is confirmed.`,
+
+          createdAt: new Date().toISOString(),
         })
       );
 
