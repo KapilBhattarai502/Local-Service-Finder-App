@@ -1,15 +1,32 @@
 import React from "react";
 
-import { View, Text, StyleSheet, FlatList, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
-export default function ProviderDashboardScreen() {
+import { logoutUser } from "../redux/userSlice";
+
+export default function ProviderDashboardScreen({ navigation }) {
   const currentUser = useSelector((state) => state.user.currentUser);
 
   const bookings = currentUser?.bookings || [];
+
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+
+    navigation.replace("Login");
+  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -21,17 +38,31 @@ export default function ProviderDashboardScreen() {
         <Text style={styles.subtitle}>Welcome back, {currentUser?.name}</Text>
       </View>
 
-      {/* STATS */}
+      {/* TOP FLEX CARDS */}
 
-      <View style={styles.statsCard}>
-        <Text style={styles.statsNumber}>{bookings.length}</Text>
+      <View style={styles.topCardsContainer}>
+        {/* BOOKINGS CARD */}
 
-        <Text style={styles.statsLabel}>Total Bookings</Text>
+        <View style={styles.statsCard}>
+          <Text style={styles.statsNumber}>{bookings.length}</Text>
+
+          <Text style={styles.statsLabel}>Bookings</Text>
+        </View>
+
+        {/* LOGOUT CARD */}
+
+        <TouchableOpacity style={styles.logoutCard} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={30} color="#fff" />
+
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* BOOKINGS */}
+      {/* SECTION TITLE */}
 
       <Text style={styles.sectionTitle}>Customer Bookings</Text>
+
+      {/* EMPTY */}
 
       {bookings.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -53,7 +84,7 @@ export default function ProviderDashboardScreen() {
                   <Ionicons name="person" size={28} color="#fff" />
                 </View>
 
-                <View>
+                <View style={{ flex: 1 }}>
                   <Text style={styles.customerName}>{item.userName}</Text>
 
                   <Text style={styles.service}>{item.service}</Text>
@@ -127,7 +158,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+  topCardsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 30,
+  },
+
   statsCard: {
+    width: "48%",
+
     backgroundColor: "#4A90E2",
 
     borderRadius: 24,
@@ -135,8 +174,6 @@ const styles = StyleSheet.create({
     paddingVertical: 35,
 
     alignItems: "center",
-
-    marginBottom: 30,
 
     shadowColor: "#000",
     shadowOpacity: 0.1,
@@ -155,6 +192,30 @@ const styles = StyleSheet.create({
     marginTop: 8,
     color: "#fff",
     fontSize: 16,
+  },
+
+  logoutCard: {
+    width: "48%",
+
+    backgroundColor: "#EF4444",
+
+    borderRadius: 24,
+
+    justifyContent: "center",
+    alignItems: "center",
+
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+
+    elevation: 5,
+  },
+
+  logoutText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+    marginTop: 8,
   },
 
   sectionTitle: {
